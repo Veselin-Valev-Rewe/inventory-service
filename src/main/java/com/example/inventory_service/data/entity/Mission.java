@@ -19,8 +19,11 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class Mission extends BaseEntity {
     private int finalCount;
+
     private int originalValue;
+
     private MissionStatus status;
+
     private OperationType operationType;
 
     @ManyToOne

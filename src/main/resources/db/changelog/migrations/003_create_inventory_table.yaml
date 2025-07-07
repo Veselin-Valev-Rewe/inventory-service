@@ -1,0 +1,54 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003_create-inventory-table
+      author: Veselin Valev
+      changes:
+        - createTable:
+            tableName: inventory
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: count
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: warehouse_id
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: product_id
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created
+                  type: timestamp(6)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated
+                  type: timestamp(6)
+                  constraints:
+                    nullable: false
+
+        - addForeignKeyConstraint:
+            baseTableName: inventory
+            baseColumnNames: warehouse_id
+            referencedTableName: warehouse
+            referencedColumnNames: id
+            constraintName: fk_inventory_warehouse
+
+        - addForeignKeyConstraint:
+            baseTableName: inventory
+            baseColumnNames: product_id
+            referencedTableName: product
+            referencedColumnNames: id
+            constraintName: fk_inventory_product

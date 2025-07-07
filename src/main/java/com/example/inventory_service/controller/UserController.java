@@ -15,7 +15,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/inventories")
+@RequestMapping("/api/users")
 public class UserController {
     private final UserService userService;
 
@@ -33,7 +33,7 @@ public class UserController {
     @PostMapping
     public ResponseEntity<UserDto> createUser(@RequestBody @Valid CreateUserDto UserDto) {
         var user = userService.createUser(UserDto);
-        URI location = URI.create("/api/inventories/" + user.getId());
+        URI location = URI.create("/api/users/" + user.getId());
         return ResponseEntity.created(location).body(user);
     }
 

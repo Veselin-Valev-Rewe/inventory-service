@@ -1,0 +1,35 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-warehouse-table
+      author: Veselin Valev
+      changes:
+        - createTable:
+            tableName: warehouse
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: warehouse_name
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: warehouse_identifier
+                  type: VARCHAR(16)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created
+                  type: TIMESTAMP(6)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated
+                  type: TIMESTAMP(6)
+                  constraints:
+                    nullable: false
