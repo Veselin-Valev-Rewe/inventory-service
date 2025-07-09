@@ -2,9 +2,7 @@ package com.example.inventory_service.data.entity;
 
 import com.example.inventory_service.data.enums.MissionStatus;
 import com.example.inventory_service.data.enums.OperationType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,10 +18,12 @@ import lombok.experimental.SuperBuilder;
 public class Mission extends BaseEntity {
     private int finalCount;
 
-    private int originalValue;
+    private int originalCount;
 
+    @Enumerated(EnumType.STRING)
     private MissionStatus status;
 
+    @Enumerated(EnumType.STRING)
     private OperationType operationType;
 
     @ManyToOne

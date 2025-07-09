@@ -19,7 +19,7 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
-                  name: original_value
+                  name: original_count
                   type: int
                   constraints:
                     nullable: false
@@ -62,7 +62,7 @@ databaseChangeLog:
         - addForeignKeyConstraint:
             baseTableName: mission
             baseColumnNames: user_id
-            referencedTableName: user
+            referencedTableName: employeeuser
             referencedColumnNames: id
             constraintName: fk_mission_user
 

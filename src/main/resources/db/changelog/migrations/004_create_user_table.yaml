@@ -4,7 +4,7 @@ databaseChangeLog:
       author: your-name
       changes:
         - createTable:
-            tableName: user
+            tableName: employeeuser
             columns:
               - column:
                   name: id
@@ -46,13 +46,13 @@ databaseChangeLog:
                     nullable: false
 
         - addForeignKeyConstraint:
-            baseTableName: user
+            baseTableName: employeeuser
             baseColumnNames: warehouse_id
             referencedTableName: warehouse
             referencedColumnNames: id
             constraintName: fk_user_warehouse
 
         - addUniqueConstraint:
-            tableName: user
+            tableName: employeeuser
             columnNames: username, warehouse_id
             constraintName: user_warehouse
