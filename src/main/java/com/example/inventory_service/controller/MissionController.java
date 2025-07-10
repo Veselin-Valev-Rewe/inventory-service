@@ -19,15 +19,15 @@ public class MissionController {
     private final MissionService missionService;
 
     @PostMapping
-    public ResponseEntity<MissionDto> createMission(@RequestBody @Valid CreateMissionDto MissionDto) {
-        var mission = missionService.createMission(MissionDto);
+    public ResponseEntity<MissionDto> createMission(@RequestBody @Valid CreateMissionDto missionDto) {
+        var mission = missionService.createMission(missionDto);
         URI location = URI.create("/api/missions/" + mission.getId());
         return ResponseEntity.created(location).body(mission);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<MissionDto> updateMission(@PathVariable @Positive int id, @RequestBody @Valid UpdateMissionDto MissionDto) {
-        var mission = missionService.updateMission(id, MissionDto);
+    public ResponseEntity<MissionDto> updateMission(@PathVariable @Positive int id, @RequestBody @Valid UpdateMissionDto missionDto) {
+        var mission = missionService.updateMission(id, missionDto);
         return ResponseEntity.ok(mission);
     }
 
@@ -37,9 +37,9 @@ public class MissionController {
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<MissionDto> completeMission(@PathVariable @Positive int id) {
-        var mission = missionService.completeMission(id);
-        return ResponseEntity.ok(mission);
+    @PatchMapping("/{id}")
+    public ResponseEntity<Void> completeMission(@PathVariable @Positive int id) {
+        missionService.completeMission(id);
+        return ResponseEntity.noContent().build();
     }
 }

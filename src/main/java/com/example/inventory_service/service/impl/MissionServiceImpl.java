@@ -85,16 +85,14 @@ public class MissionServiceImpl implements MissionService {
     }
 
     @Override
-    public MissionDto completeMission(int id) {
+    public void completeMission(int id) {
         var mission = getMission(id);
         mission.setStatus(MissionStatus.COMPLETED);
-        var savedMission = missionRepository.save(mission);
+        missionRepository.save(mission);
 
         var inventory = getInventory(mission.getProduct().getId(), mission.getWarehouse().getId());
         inventory.setCount(mission.getFinalCount());
         inventoryRepository.save(inventory);
-
-        return missionMapper.toMissionDto(savedMission);
     }
 
     private User getUser(int id) {

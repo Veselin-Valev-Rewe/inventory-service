@@ -11,5 +11,5 @@ public interface MissionService {
 
     void deleteMission(int id);
 
-    MissionDto completeMission(int id);
+    void completeMission(int id);
 }

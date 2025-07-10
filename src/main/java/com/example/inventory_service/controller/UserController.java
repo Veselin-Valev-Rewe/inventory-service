@@ -26,15 +26,15 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserDto> createUser(@RequestBody @Valid CreateUserDto UserDto) {
-        var user = userService.createUser(UserDto);
+    public ResponseEntity<UserDto> createUser(@RequestBody @Valid CreateUserDto userDto) {
+        var user = userService.createUser(userDto);
         URI location = URI.create("/api/users/" + user.getId());
         return ResponseEntity.created(location).body(user);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserDto> updateUser(@PathVariable @Positive int id, @RequestBody @Valid UpdateUserDto UserDto) {
-        var user = userService.updateUser(id, UserDto);
+    public ResponseEntity<UserDto> updateUser(@PathVariable @Positive int id, @RequestBody @Valid UpdateUserDto userDto) {
+        var user = userService.updateUser(id, userDto);
         return ResponseEntity.ok(user);
     }
 
