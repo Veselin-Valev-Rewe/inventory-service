@@ -5,6 +5,7 @@ import com.example.inventory_service.dto.user.UpdateUserDto;
 import com.example.inventory_service.dto.user.UserDto;
 import com.example.inventory_service.service.UserService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,7 +21,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public ResponseEntity<Page<UserDto>> getWarehouseUsers(@RequestParam int warehouseId, Pageable pageable) {
+    public ResponseEntity<Page<UserDto>> getWarehouseUsers(@RequestParam @Positive int warehouseId, Pageable pageable) {
         return ResponseEntity.ok(userService.getUsers(warehouseId, pageable));
     }
 
@@ -31,20 +32,20 @@ public class UserController {
         return ResponseEntity.created(location).body(user);
     }
 
-    @PutMapping
-    public ResponseEntity<UserDto> updateUser(@RequestBody @Valid UpdateUserDto UserDto) {
-        var user = userService.updateUser(UserDto);
+    @PutMapping("/{id}")
+    public ResponseEntity<UserDto> updateUser(@PathVariable @Positive int id, @RequestBody @Valid UpdateUserDto UserDto) {
+        var user = userService.updateUser(id, UserDto);
         return ResponseEntity.ok(user);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable int id) {
+    public ResponseEntity<Void> deleteUser(@PathVariable @Positive int id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}/warehouses/add/{warehouseId}")
-    public ResponseEntity<UserDto> removeUserFromWarehouse(@PathVariable int id, @PathVariable int warehouseId) {
+    public ResponseEntity<UserDto> removeUserFromWarehouse(@PathVariable @Positive int id, @PathVariable @Positive int warehouseId) {
         var user = userService.addUserToWarehouse(id, warehouseId);
         return ResponseEntity.ok(user);
     }

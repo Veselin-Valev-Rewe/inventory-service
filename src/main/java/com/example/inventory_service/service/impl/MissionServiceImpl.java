@@ -67,8 +67,8 @@ public class MissionServiceImpl implements MissionService {
     }
 
     @Override
-    public MissionDto updateMission(UpdateMissionDto missionDto) {
-        var mission = getMission(missionDto.getId());
+    public MissionDto updateMission(int id, UpdateMissionDto missionDto) {
+        var mission = getMission(id);
         missionMapper.updateMissionFromDto(missionDto, mission);
         var savedMission = missionRepository.save(mission);
 

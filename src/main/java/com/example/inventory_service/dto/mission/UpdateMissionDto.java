@@ -12,8 +12,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateMissionDto {
-    private int id;
-
     private MissionStatus status;
 
     private OperationType operationType;

@@ -5,6 +5,7 @@ import com.example.inventory_service.dto.mission.MissionDto;
 import com.example.inventory_service.dto.mission.UpdateMissionDto;
 import com.example.inventory_service.service.MissionService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,20 +25,20 @@ public class MissionController {
         return ResponseEntity.created(location).body(mission);
     }
 
-    @PutMapping
-    public ResponseEntity<MissionDto> updateMission(@RequestBody @Valid UpdateMissionDto MissionDto) {
-        var mission = missionService.updateMission(MissionDto);
+    @PutMapping("/{id}")
+    public ResponseEntity<MissionDto> updateMission(@PathVariable @Positive int id, @RequestBody @Valid UpdateMissionDto MissionDto) {
+        var mission = missionService.updateMission(id, MissionDto);
         return ResponseEntity.ok(mission);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteMission(@PathVariable int id) {
+    public ResponseEntity<Void> deleteMission(@PathVariable @Positive int id) {
         missionService.deleteMission(id);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<MissionDto> completeMission(@PathVariable int id) {
+    public ResponseEntity<MissionDto> completeMission(@PathVariable @Positive int id) {
         var mission = missionService.completeMission(id);
         return ResponseEntity.ok(mission);
     }

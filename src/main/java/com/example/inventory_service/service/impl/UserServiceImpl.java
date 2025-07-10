@@ -39,8 +39,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto updateUser(UpdateUserDto userDto) {
-        var user = getUser(userDto.getId());
+    public UserDto updateUser(int id, UpdateUserDto userDto) {
+        var user = getUser(id);
         userMapper.updateUserFromDto(userDto, user);
 
         return userMapper.toUserDto(userRepository.save(user));

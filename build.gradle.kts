@@ -35,6 +35,8 @@ dependencies {
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9")
     implementation("org.liquibase:liquibase-core")
     implementation("org.mapstruct:mapstruct:1.5.5.Final")
+    implementation("org.springframework.kafka:spring-kafka")
+    implementation("com.fasterxml.jackson.core:jackson-databind")
 
     runtimeOnly("org.postgresql:postgresql")
 
@@ -50,6 +52,7 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.testcontainers:postgresql")
+    testImplementation("org.springframework.kafka:spring-kafka-test")
 
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }

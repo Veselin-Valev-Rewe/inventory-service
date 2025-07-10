@@ -13,8 +13,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateUserDto {
-    private int id;
-
     @NotBlank()
     @Size(max = 36)
     private String username;
