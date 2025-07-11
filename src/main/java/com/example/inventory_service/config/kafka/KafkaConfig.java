@@ -56,7 +56,17 @@ public class KafkaConfig {
     }
 
     @Bean
-    public NewTopic testTopic() {
+    public NewTopic warehouseTopic() {
         return new NewTopic(KafkaTopics.WAREHOUSES_TOPIC, 1, (short) 1);
+    }
+
+    @Bean
+    public NewTopic productTopic() {
+        return new NewTopic(KafkaTopics.PRODUCTS_TOPIC, 1, (short) 1);
+    }
+
+    @Bean
+    public NewTopic inventoryMissionTopic() {
+        return new NewTopic(KafkaTopics.INVENTORY_MISSION_TOPIC, 1, (short) 1);
     }
 }
