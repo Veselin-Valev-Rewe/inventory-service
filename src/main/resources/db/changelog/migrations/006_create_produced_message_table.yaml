@@ -1,0 +1,34 @@
+databaseChangeLog:
+  - changeSet:
+      id: 006_create-produced_message-table
+      author: Veselin Valev
+      changes:
+        - createTable:
+            tableName: producedmessage
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: msg_key
+                  type: varchar(50)
+              - column:
+                  name: status
+                  type: varchar(50)
+              - column:
+                  name: payload
+                  type: text
+              - column:
+                  name: created
+                  type: timestamp(6)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated
+                  type: timestamp(6)
+                  constraints:
+                    nullable: false
