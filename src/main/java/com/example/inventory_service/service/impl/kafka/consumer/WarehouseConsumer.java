@@ -1,4 +1,4 @@
-package com.example.inventory_service.service.impl.kafka;
+package com.example.inventory_service.service.impl.kafka.consumer;
 
 import com.example.inventory_service.data.entity.ProducedMessage;
 import com.example.inventory_service.data.entity.Warehouse;
@@ -7,31 +7,39 @@ import com.example.inventory_service.data.repository.ProducedMessageRepository;
 import com.example.inventory_service.data.repository.WarehouseRepository;
 import com.example.inventory_service.dto.warehouse.WarehouseDto;
 import com.example.inventory_service.mapper.WarehouseMapper;
-import com.example.inventory_service.message.KafkaMessage;
+import com.example.inventory_service.message.Message;
 import com.example.inventory_service.util.errormessage.ErrorMessages;
 import com.example.inventory_service.util.kafka.KafkaTopics;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class WarehouseConsumer {
     private final WarehouseRepository warehouseRepository;
     private final ProducedMessageRepository producedMessageRepository;
     private final WarehouseMapper warehouseMapper;
+    private final ObjectMapper objectMapper;
 
     @KafkaListener(topics = KafkaTopics.WAREHOUSES_TOPIC, groupId = "${kafka.consumer.warehouse.group-id}")
-    public void listen(ConsumerRecord<String, KafkaMessage<WarehouseDto>> record) {
-        var WarehouseDto = record.value().getPayload();
-        var actionType = record.value().getActionType();
+    public void listen(ConsumerRecord<String, String> record) {
+        log.info("Consuming message with key={}, value = {}", record.key(), record.value());
         var producedMessage = ProducedMessage.builder()
                 .msgKey(record.key())
-                .payload(record.toString())
+                .payload(record.value())
                 .build();
         try {
+            var message = objectMapper.readValue(record.value(), Message.class);
+            log.info("Mapped message {}", message);
+            var WarehouseDto = objectMapper.convertValue(message.getPayload(), WarehouseDto.class);
+            var actionType = message.getActionType();
+
             switch (actionType) {
                 case CREATE -> warehouseRepository.save(warehouseMapper.toWarehouse(WarehouseDto));
                 case UPDATE -> {
@@ -40,8 +48,9 @@ public class WarehouseConsumer {
                     warehouseRepository.save(Warehouse);
                 }
                 case DELETE -> {
-                    if (warehouseRepository.existsById(WarehouseDto.getId())) {
-                        warehouseRepository.deleteById(WarehouseDto.getId());
+                    var id = Integer.valueOf(record.key());
+                    if (warehouseRepository.existsById(id)) {
+                        warehouseRepository.deleteById(id);
                     }
 
                     throw new EntityNotFoundException(ErrorMessages.PRODUCT_NOT_FOUND);
@@ -50,6 +59,7 @@ public class WarehouseConsumer {
             }
             producedMessage.setStatus(MessageStatus.SENT);
         } catch (Exception e) {
+            log.error("Warehouse consumer error", e);
             producedMessage.setStatus(MessageStatus.FAILED);
         }
 

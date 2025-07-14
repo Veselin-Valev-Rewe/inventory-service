@@ -1,7 +1,7 @@
 databaseChangeLog:
   - changeSet:
       id: 004_create-user-table
-      author: your-name
+      author: Veselin Valev
       changes:
         - createTable:
             tableName: employeeuser

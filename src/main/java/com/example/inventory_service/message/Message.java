@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class KafkaMessage<T> {
+public class Message<T> {
     private ActionType actionType;
 
     private T payload;
