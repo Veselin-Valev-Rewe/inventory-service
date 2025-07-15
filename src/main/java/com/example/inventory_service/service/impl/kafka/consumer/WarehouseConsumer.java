@@ -5,8 +5,9 @@ import com.example.inventory_service.data.repository.WarehouseRepository;
 import com.example.inventory_service.dto.warehouse.WarehouseDto;
 import com.example.inventory_service.mapper.WarehouseMapper;
 import com.example.inventory_service.message.Message;
-import com.example.inventory_service.util.errormessage.ErrorMessages;
 import com.example.inventory_service.util.kafka.KafkaTopics;
+import com.example.inventory_service.util.message.ErrorMessages;
+import com.example.inventory_service.util.message.InfoMessages;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -25,32 +26,42 @@ public class WarehouseConsumer {
 
     @KafkaListener(topics = KafkaTopics.WAREHOUSES_TOPIC, groupId = "${kafka.consumer.warehouse.group-id}")
     public void listen(ConsumerRecord<String, String> record) {
-        log.info("Consuming message with key={}, value = {}", record.key(), record.value());
-        var warehouseId = Integer.valueOf(record.key());
+        log.info(InfoMessages.CONSUMING_MESSAGE, record.key(), record.value());
+
         try {
+            var warehouseId = Integer.valueOf(record.key());
             var message = objectMapper.readValue(record.value(), Message.class);
             var warehouseDto = objectMapper.convertValue(message.getPayload(), WarehouseDto.class);
             var actionType = message.getActionType();
 
             switch (actionType) {
-                case CREATE -> warehouseRepository.save(warehouseMapper.toWarehouse(warehouseDto));
-                case UPDATE -> {
-                    var warehouse = getWarehouse(warehouseId);
-                    warehouseMapper.updateWarehouseFromDto(warehouseDto, warehouse);
-                    warehouseRepository.save(warehouse);
-                }
-                case DELETE -> {
-                    if (!warehouseRepository.existsById(warehouseId)) {
-                        throw new EntityNotFoundException(String.format(ErrorMessages.PRODUCT_NOT_FOUND, warehouseId));
-                    }
-                    warehouseRepository.deleteById(warehouseId);
-                }
+                case CREATE -> createWarehouse(warehouseDto);
+                case UPDATE -> updateWarehouse(warehouseId, warehouseDto);
+                case DELETE -> deleteWarehouse(warehouseId);
                 default ->
                         throw new EntityNotFoundException(String.format(ErrorMessages.PRODUCT_NOT_FOUND, warehouseId));
             }
         } catch (Exception e) {
-            log.error("Warehouse consumer error", e);
+            log.error(ErrorMessages.CONSUMER_ERROR, e);
         }
+    }
+
+    private void createWarehouse(WarehouseDto warehouseDto) {
+        var warehouse = warehouseMapper.toWarehouse(warehouseDto);
+        warehouseRepository.save(warehouse);
+    }
+
+    private void deleteWarehouse(Integer warehouseId) {
+        if (!warehouseRepository.existsById(warehouseId)) {
+            throw new EntityNotFoundException(String.format(ErrorMessages.PRODUCT_NOT_FOUND, warehouseId));
+        }
+        warehouseRepository.deleteById(warehouseId);
+    }
+
+    private void updateWarehouse(Integer warehouseId, WarehouseDto warehouseDto) {
+        var warehouse = getWarehouse(warehouseId);
+        warehouseMapper.updateWarehouseFromDto(warehouseDto, warehouse);
+        warehouseRepository.save(warehouse);
     }
 
     private Warehouse getWarehouse(int id) {

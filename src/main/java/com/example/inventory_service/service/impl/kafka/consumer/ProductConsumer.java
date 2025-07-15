@@ -5,8 +5,9 @@ import com.example.inventory_service.data.repository.ProductRepository;
 import com.example.inventory_service.dto.product.ProductDto;
 import com.example.inventory_service.mapper.ProductMapper;
 import com.example.inventory_service.message.Message;
-import com.example.inventory_service.util.errormessage.ErrorMessages;
 import com.example.inventory_service.util.kafka.KafkaTopics;
+import com.example.inventory_service.util.message.ErrorMessages;
+import com.example.inventory_service.util.message.InfoMessages;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -25,31 +26,41 @@ public class ProductConsumer {
 
     @KafkaListener(topics = KafkaTopics.PRODUCTS_TOPIC, groupId = "${kafka.consumer.product.group-id}")
     public void listen(ConsumerRecord<String, String> record) {
-        log.info("Consuming message with key={}, value = {}", record.key(), record.value());
-        var productId = Integer.valueOf(record.key());
+        log.info(InfoMessages.CONSUMING_MESSAGE, record.key(), record.value());
+
         try {
+            var productId = Integer.valueOf(record.key());
             var message = objectMapper.readValue(record.value(), Message.class);
             var productDto = objectMapper.convertValue(message.getPayload(), ProductDto.class);
             var actionType = message.getActionType();
 
             switch (actionType) {
-                case CREATE -> productRepository.save(productMapper.toProduct(productDto));
-                case UPDATE -> {
-                    var product = getProduct(productId);
-                    productMapper.updateProductFromDto(productDto, product);
-                    productRepository.save(product);
-                }
-                case DELETE -> {
-                    if (!productRepository.existsById(productId)) {
-                        throw new EntityNotFoundException(String.format(ErrorMessages.PRODUCT_NOT_FOUND, productId));
-                    }
-                    productRepository.deleteById(productId);
-                }
+                case CREATE -> createProduct(productDto);
+                case UPDATE -> updateProduct(productId, productDto);
+                case DELETE -> deleteProduct(productId);
                 default -> throw new EntityNotFoundException(String.format(ErrorMessages.PRODUCT_NOT_FOUND, productId));
             }
         } catch (Exception e) {
-            log.error("Product consumer error", e);
+            log.error(ErrorMessages.CONSUMER_ERROR, e);
         }
+    }
+
+    private void deleteProduct(Integer productId) {
+        if (!productRepository.existsById(productId)) {
+            throw new EntityNotFoundException(String.format(ErrorMessages.PRODUCT_NOT_FOUND, productId));
+        }
+        productRepository.deleteById(productId);
+    }
+
+    private void updateProduct(Integer productId, ProductDto productDto) {
+        var product = getProduct(productId);
+        productMapper.updateProductFromDto(productDto, product);
+        productRepository.save(product);
+    }
+
+    private void createProduct(ProductDto productDto) {
+        var product = productMapper.toProduct(productDto);
+        productRepository.save(product);
     }
 
     private Product getProduct(int id) {

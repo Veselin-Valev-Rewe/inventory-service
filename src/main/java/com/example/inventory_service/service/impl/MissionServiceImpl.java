@@ -2,13 +2,17 @@ package com.example.inventory_service.service.impl;
 
 import com.example.inventory_service.data.entity.*;
 import com.example.inventory_service.data.enums.MissionStatus;
+import com.example.inventory_service.data.enums.OperationType;
 import com.example.inventory_service.data.repository.*;
 import com.example.inventory_service.dto.mission.CreateMissionDto;
 import com.example.inventory_service.dto.mission.MissionDto;
 import com.example.inventory_service.dto.mission.UpdateMissionDto;
 import com.example.inventory_service.mapper.MissionMapper;
+import com.example.inventory_service.message.Message;
+import com.example.inventory_service.message.enums.ActionType;
+import com.example.inventory_service.service.MissionProducer;
 import com.example.inventory_service.service.MissionService;
-import com.example.inventory_service.util.errormessage.ErrorMessages;
+import com.example.inventory_service.util.message.ErrorMessages;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,6 +25,7 @@ public class MissionServiceImpl implements MissionService {
     private final ProductRepository productRepository;
     private final WarehouseRepository warehouseRepository;
     private final InventoryRepository inventoryRepository;
+    private final MissionProducer missionProducer;
     private final MissionMapper missionMapper;
 
     @Override
@@ -38,32 +43,21 @@ public class MissionServiceImpl implements MissionService {
                 .product(product)
                 .build();
 
-        var operationType = missionDto.getOperationType();
-        int originalCount;
-        int finalCount;
+        executeMission(missionDto.getOperationType(), mission, missionDto.getOperationCount(), inventory.getCount());
 
-        switch (operationType) {
-            case INITIAL_PLACEMENT -> {
-                originalCount = 0;
-                finalCount = missionDto.getOperationalCount();
-            }
-            case UPDATE -> {
-                originalCount = inventory.getCount();
-                finalCount = originalCount + missionDto.getOperationalCount();
-            }
-            case UNSTOW -> {
-                originalCount = inventory.getCount();
-                finalCount = 0;
-            }
-            default ->
-                    throw new IllegalArgumentException(String.format(ErrorMessages.UNSUPPORTED_OPERATION_TYPE, operationType));
-        }
-
-        mission.setOriginalCount(originalCount);
-        mission.setFinalCount(finalCount);
         var savedMission = missionRepository.save(mission);
 
         return missionMapper.toMissionDto(savedMission);
+    }
+
+    private void executeMission(OperationType operationType, Mission mission, int operationCount, int invCount) {
+        switch (operationType) {
+            case INITIAL_PLACEMENT -> setProductCounts(0, operationCount, mission);
+            case UPDATE -> setProductCounts(invCount, invCount + operationCount, mission);
+            case UNSTOW -> setProductCounts(invCount, 0, mission);
+            default ->
+                    throw new IllegalArgumentException(String.format(ErrorMessages.UNSUPPORTED_OPERATION_TYPE, operationType));
+        }
     }
 
     @Override
@@ -87,12 +81,31 @@ public class MissionServiceImpl implements MissionService {
     @Override
     public void completeMission(int id) {
         var mission = getMission(id);
+
+        updateInventory(mission);
+        updateMission(mission);
+        sendMissionMessage(mission);
+    }
+
+    private void sendMissionMessage(Mission mission) {
+        var missionMessage = missionMapper.toMissionMessage(mission);
+        missionProducer.sentMessage(String.valueOf(mission.getId()), new Message<>(ActionType.CREATE, missionMessage));
+    }
+
+    private void updateMission(Mission mission) {
         mission.setStatus(MissionStatus.COMPLETED);
         missionRepository.save(mission);
+    }
 
+    private void updateInventory(Mission mission) {
         var inventory = getInventory(mission.getProduct().getId(), mission.getWarehouse().getId());
         inventory.setCount(mission.getFinalCount());
         inventoryRepository.save(inventory);
+    }
+
+    private void setProductCounts(int originalCount, int finalCount, Mission mission) {
+        mission.setOriginalCount(originalCount);
+        mission.setFinalCount(finalCount);
     }
 
     private User getUser(int id) {

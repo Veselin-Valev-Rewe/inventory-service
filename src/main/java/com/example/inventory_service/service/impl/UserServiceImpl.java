@@ -9,7 +9,7 @@ import com.example.inventory_service.dto.user.UpdateUserDto;
 import com.example.inventory_service.dto.user.UserDto;
 import com.example.inventory_service.mapper.UserMapper;
 import com.example.inventory_service.service.UserService;
-import com.example.inventory_service.util.errormessage.ErrorMessages;
+import com.example.inventory_service.util.message.ErrorMessages;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

@@ -10,10 +10,12 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateMissionDto {
-    private OperationType operationType;
+public class MissionMessageDto {
+    private int finalCount;
 
-    private int operationCount;
+    private int originalCount;
+
+    private OperationType operationType;
 
     private int userId;
 
