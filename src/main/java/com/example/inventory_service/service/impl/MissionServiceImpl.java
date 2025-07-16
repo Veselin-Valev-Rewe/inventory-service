@@ -33,31 +33,16 @@ public class MissionServiceImpl implements MissionService {
         var user = getUser(missionDto.getUserId());
         var warehouse = getWarehouse(missionDto.getWarehouseId());
         var product = getProduct(missionDto.getProductId());
-        var inventory = getInventory(product.getId(), warehouse.getId());
+        var operationType = missionDto.getOperationType();
+        var inventory = handleInventory(operationType, warehouse, product);
 
-        var mission = Mission.builder()
-                .operationType(missionDto.getOperationType())
-                .status(MissionStatus.IN_PROGRESS)
-                .user(user)
-                .warehouse(warehouse)
-                .product(product)
-                .build();
+        var mission = buildMission(missionDto, user, warehouse, product);
 
-        executeMission(missionDto.getOperationType(), mission, missionDto.getOperationCount(), inventory.getCount());
+        executeMission(operationType, mission, missionDto.getOperationCount(), inventory.getCount());
 
         var savedMission = missionRepository.save(mission);
 
         return missionMapper.toMissionDto(savedMission);
-    }
-
-    private void executeMission(OperationType operationType, Mission mission, int operationCount, int invCount) {
-        switch (operationType) {
-            case INITIAL_PLACEMENT -> setProductCounts(0, operationCount, mission);
-            case UPDATE -> setProductCounts(invCount, invCount + operationCount, mission);
-            case UNSTOW -> setProductCounts(invCount, 0, mission);
-            default ->
-                    throw new IllegalArgumentException(String.format(ErrorMessages.UNSUPPORTED_OPERATION_TYPE, operationType));
-        }
     }
 
     @Override
@@ -85,6 +70,42 @@ public class MissionServiceImpl implements MissionService {
         updateInventory(mission);
         updateMission(mission);
         sendMissionMessage(mission);
+    }
+
+    private static Mission buildMission(CreateMissionDto missionDto, User user, Warehouse warehouse, Product product) {
+        return Mission.builder()
+                .operationType(missionDto.getOperationType())
+                .status(MissionStatus.IN_PROGRESS)
+                .user(user)
+                .warehouse(warehouse)
+                .product(product)
+                .build();
+    }
+
+    private Inventory handleInventory(OperationType operationType, Warehouse warehouse, Product product) {
+        Inventory inventory = null;
+
+        if (operationType == OperationType.INITIAL_PLACEMENT) {
+            inventory = inventoryRepository.save(
+                    Inventory.builder()
+                            .warehouse(warehouse)
+                            .product(product)
+                            .count(0)
+                            .build());
+        } else {
+            inventory = getInventory(product.getId(), warehouse.getId());
+        }
+        return inventory;
+    }
+
+    private void executeMission(OperationType operationType, Mission mission, int operationCount, int invCount) {
+        switch (operationType) {
+            case INITIAL_PLACEMENT -> setProductCounts(0, operationCount, mission);
+            case UPDATE -> setProductCounts(invCount, invCount + operationCount, mission);
+            case UNSTOW -> setProductCounts(invCount, 0, mission);
+            default ->
+                    throw new IllegalArgumentException(String.format(ErrorMessages.UNSUPPORTED_OPERATION_TYPE, operationType));
+        }
     }
 
     private void sendMissionMessage(Mission mission) {

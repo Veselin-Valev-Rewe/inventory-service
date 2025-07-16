@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MissionMessageDto {
+    private int id;
+    
     private int finalCount;
 
     private int originalCount;

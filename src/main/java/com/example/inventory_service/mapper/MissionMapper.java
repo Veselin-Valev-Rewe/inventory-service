@@ -11,10 +11,16 @@ import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface MissionMapper {
+    @Mapping(target = "warehouseId", source = "warehouse.id")
+    @Mapping(target = "userId", source = "user.id")
+    @Mapping(target = "productId", source = "product.id")
     MissionDto toMissionDto(Mission mission);
 
     @Mapping(target = "id", ignore = true)
     void updateMissionFromDto(UpdateMissionDto dto, @MappingTarget Mission mission);
 
+    @Mapping(target = "warehouseId", source = "warehouse.id")
+    @Mapping(target = "userId", source = "user.id")
+    @Mapping(target = "productId", source = "product.id")
     MissionMessageDto toMissionMessage(Mission mission);
 }

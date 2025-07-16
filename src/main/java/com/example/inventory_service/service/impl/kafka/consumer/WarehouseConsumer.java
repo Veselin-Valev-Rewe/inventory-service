@@ -39,7 +39,7 @@ public class WarehouseConsumer {
                 case UPDATE -> updateWarehouse(warehouseId, warehouseDto);
                 case DELETE -> deleteWarehouse(warehouseId);
                 default ->
-                        throw new EntityNotFoundException(String.format(ErrorMessages.PRODUCT_NOT_FOUND, warehouseId));
+                        throw new IllegalArgumentException(String.format(ErrorMessages.UNEXPECTED_VALUE, actionType));
             }
         } catch (Exception e) {
             log.error(ErrorMessages.CONSUMER_ERROR, e);

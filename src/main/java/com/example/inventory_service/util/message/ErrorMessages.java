@@ -10,4 +10,5 @@ public class ErrorMessages {
     public static final String SENDING_INTERRUPTED = "Kafka sending interrupted";
     public static final String SENDING_FAILED = "Kafka sending failed";
     public static final String CONSUMER_ERROR = "Consumer error";
+    public static final String UNEXPECTED_VALUE = "Unexpected value: %S";
 }

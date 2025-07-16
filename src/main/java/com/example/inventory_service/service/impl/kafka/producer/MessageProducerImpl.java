@@ -8,6 +8,7 @@ import com.example.inventory_service.message.Message;
 import com.example.inventory_service.service.MissionProducer;
 import com.example.inventory_service.util.kafka.KafkaTopics;
 import com.example.inventory_service.util.message.ErrorMessages;
+import com.example.inventory_service.util.message.InfoMessages;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +25,7 @@ public class MessageProducerImpl implements MissionProducer {
 
     @Override
     public void sentMessage(String key, Message<MissionMessageDto> message) {
-        log.info("Sending message with key {} to topic {}", key, KafkaTopics.INVENTORY_MISSION_TOPIC);
+        log.info(InfoMessages.SENDING_MESSAGE, key, KafkaTopics.INVENTORY_MISSION_TOPIC);
         try {
             var payload = objectMapper.writeValueAsString(message);
             kafkaTemplate.send(KafkaTopics.INVENTORY_MISSION_TOPIC, key, payload).get();
