@@ -18,4 +18,6 @@ public interface UserService {
     UserDto removeUserFromWarehouse(int id);
 
     void deleteUser(int id);
+
+    UserDto getUserDetails(int id);
 }

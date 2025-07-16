@@ -56,6 +56,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public UserDto getUserDetails(int id) {
+        return userMapper.toUserDto(getUser(id));
+    }
+
+    @Override
     public UserDto addUserToWarehouse(int id, int warehouseId) {
         var user = getUser(id);
         var warehouse = getWarehouse(id);
