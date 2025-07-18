@@ -5,6 +5,7 @@ import com.example.inventory_service.data.enums.MessageStatus;
 import com.example.inventory_service.data.repository.ProducedMessageRepository;
 import com.example.inventory_service.dto.mission.MissionMessageDto;
 import com.example.inventory_service.message.Message;
+import com.example.inventory_service.service.MessageValidatorService;
 import com.example.inventory_service.service.MissionProducer;
 import com.example.inventory_service.util.kafka.KafkaTopics;
 import com.example.inventory_service.util.message.ErrorMessages;
@@ -18,16 +19,18 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class MessageProducerImpl implements MissionProducer {
+public class MissionProducerImpl implements MissionProducer {
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ProducedMessageRepository producedMessageRepository;
     private final ObjectMapper objectMapper;
+    private final MessageValidatorService messageValidatorService;
 
     @Override
     public void sentMessage(String key, Message<MissionMessageDto> message) {
         log.info(InfoMessages.SENDING_MESSAGE, key, KafkaTopics.INVENTORY_MISSION_TOPIC);
         try {
             var payload = objectMapper.writeValueAsString(message);
+            messageValidatorService.validate(KafkaTopics.INVENTORY_MISSION_TOPIC, payload);
             kafkaTemplate.send(KafkaTopics.INVENTORY_MISSION_TOPIC, key, payload).get();
             saveProducedMessage(key, message, MessageStatus.SENT);
         } catch (InterruptedException e) {

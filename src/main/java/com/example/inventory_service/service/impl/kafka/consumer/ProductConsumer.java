@@ -5,6 +5,7 @@ import com.example.inventory_service.data.repository.ProductRepository;
 import com.example.inventory_service.dto.product.ProductDto;
 import com.example.inventory_service.mapper.ProductMapper;
 import com.example.inventory_service.message.Message;
+import com.example.inventory_service.service.MessageValidatorService;
 import com.example.inventory_service.util.kafka.KafkaTopics;
 import com.example.inventory_service.util.message.ErrorMessages;
 import com.example.inventory_service.util.message.InfoMessages;
@@ -23,12 +24,14 @@ public class ProductConsumer {
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
     private final ObjectMapper objectMapper;
+    private final MessageValidatorService messageValidatorService;
 
     @KafkaListener(topics = KafkaTopics.PRODUCTS_TOPIC, groupId = "${kafka.consumer.product.group-id}")
     public void listen(ConsumerRecord<String, String> record) {
         log.info(InfoMessages.CONSUMING_MESSAGE, record.key(), record.value());
 
         try {
+            messageValidatorService.validate(KafkaTopics.PRODUCTS_TOPIC, record.value());
             var productId = Integer.valueOf(record.key());
             var message = objectMapper.readValue(record.value(), Message.class);
             var productDto = objectMapper.convertValue(message.getPayload(), ProductDto.class);

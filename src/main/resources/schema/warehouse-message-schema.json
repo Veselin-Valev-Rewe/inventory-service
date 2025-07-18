@@ -1,0 +1,60 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MissionMessage",
+  "type": "object",
+  "properties": {
+    "actionType": {
+      "type": "string",
+      "enum": [
+        "CREATE",
+        "UPDATE",
+        "DELETE"
+      ]
+    },
+    "payload": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "finalCount": {
+          "type": "integer"
+        },
+        "originalCount": {
+          "type": "integer"
+        },
+        "operationType": {
+          "type": "string",
+          "enum": [
+            "INITIAL_PLACEMENT",
+            "UNSTOW",
+            "UPDATE"
+          ]
+        },
+        "userId": {
+          "type": "integer"
+        },
+        "productId": {
+          "type": "integer"
+        },
+        "warehouseId": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "finalCount",
+        "originalCount",
+        "operationType",
+        "warehouseName",
+        "userId",
+        "productId",
+        "warehouseId"
+      ]
+    }
+  },
+  "required": [
+    "actionType",
+    "payload"
+  ]
+}

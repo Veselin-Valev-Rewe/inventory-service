@@ -37,6 +37,8 @@ dependencies {
     implementation("org.mapstruct:mapstruct:1.5.5.Final")
     implementation("org.springframework.kafka:spring-kafka")
     implementation("com.fasterxml.jackson.core:jackson-databind")
+    implementation("org.everit.json:org.everit.json.schema:1.5.1")
+    implementation("org.json:json:20250517")
 
     runtimeOnly("org.postgresql:postgresql")
 
