@@ -12,53 +12,48 @@
       ]
     },
     "payload": {
-      "anyOf": [
-        {
-          "type": "object",
-          "properties": {
-            "id": {
-              "type": "integer"
-            },
-            "title": {
-              "type": "string"
-            },
-            "description": {
-              "type": "string"
-            },
-            "imageUrl": {
-              "type": "string"
-            },
-            "uniqueIdentifierNan": {
-              "type": "string"
-            },
-            "uniqueIdentifierGtin": {
-              "type": "string"
-            },
-            "created": {
-              "type": "string"
-            },
-            "updated": {
-              "type": "string"
-            }
-          },
-          "required": [
-            "id",
-            "title",
-            "description",
-            "imageUrl",
-            "uniqueIdentifierNan",
-            "uniqueIdentifierGtin",
-            "created",
-            "updated"
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "finalCount": {
+          "type": "integer"
+        },
+        "originalCount": {
+          "type": "integer"
+        },
+        "operationType": {
+          "type": "string",
+          "enum": [
+            "INITIAL_PLACEMENT",
+            "UNSTOW",
+            "UPDATE"
           ]
         },
-        {
-          "type": "null"
+        "userId": {
+          "type": "integer"
+        },
+        "productId": {
+          "type": "integer"
+        },
+        "warehouseId": {
+          "type": "integer"
         }
+      },
+      "required": [
+        "id",
+        "finalCount",
+        "originalCount",
+        "operationType",
+        "userId",
+        "productId",
+        "warehouseId"
       ]
     }
   },
   "required": [
-    "actionType"
+    "actionType",
+    "payload"
   ]
 }

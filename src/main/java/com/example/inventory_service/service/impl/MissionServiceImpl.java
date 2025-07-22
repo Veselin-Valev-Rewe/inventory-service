@@ -28,6 +28,16 @@ public class MissionServiceImpl implements MissionService {
     private final MissionProducer missionProducer;
     private final MissionMapper missionMapper;
 
+    private static Mission buildMission(CreateMissionDto missionDto, User user, Warehouse warehouse, Product product) {
+        return Mission.builder()
+                .operationType(missionDto.getOperationType())
+                .status(MissionStatus.IN_PROGRESS)
+                .user(user)
+                .warehouse(warehouse)
+                .product(product)
+                .build();
+    }
+
     @Override
     public MissionDto createMission(CreateMissionDto missionDto) {
         var user = getUser(missionDto.getUserId());
@@ -72,26 +82,19 @@ public class MissionServiceImpl implements MissionService {
         sendMissionMessage(mission);
     }
 
-    private static Mission buildMission(CreateMissionDto missionDto, User user, Warehouse warehouse, Product product) {
-        return Mission.builder()
-                .operationType(missionDto.getOperationType())
-                .status(MissionStatus.IN_PROGRESS)
-                .user(user)
-                .warehouse(warehouse)
-                .product(product)
-                .build();
-    }
-
     private Inventory handleInventory(OperationType operationType, Warehouse warehouse, Product product) {
         Inventory inventory = null;
 
         if (operationType == OperationType.INITIAL_PLACEMENT) {
-            inventory = inventoryRepository.save(
-                    Inventory.builder()
-                            .warehouse(warehouse)
-                            .product(product)
-                            .count(0)
-                            .build());
+            if (!inventoryRepository.existsByProductIdAndWarehouseId(product.getId(), warehouse.getId())) {
+                inventory = inventoryRepository.save(
+                        Inventory.builder()
+                                .warehouse(warehouse)
+                                .product(product)
+                                .count(0)
+                                .build());
+            }
+
         } else {
             inventory = getInventory(product.getId(), warehouse.getId());
         }

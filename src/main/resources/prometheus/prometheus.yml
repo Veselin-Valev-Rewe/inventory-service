@@ -1,0 +1,28 @@
+global:
+  scrape_interval: 10s
+  evaluation_interval: 10s
+
+scrape_configs:
+  - job_name: 'inventory-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: [ 'inventory-service:8080' ]
+
+  - job_name: 'product-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: [ 'product-service:8080' ]
+
+  - job_name: 'warehouse-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: [ 'warehouse-service:8080' ]
+
+  - job_name: 'report-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: [ 'report-service:8080' ]
+
+  - job_name: 'kafka-exporter'
+    static_configs:
+      - targets: [ 'kafka-exporter:9308' ]

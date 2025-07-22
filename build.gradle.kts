@@ -39,6 +39,8 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind")
     implementation("org.everit.json:org.everit.json.schema:1.5.1")
     implementation("org.json:json:20250517")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("io.micrometer:micrometer-registry-prometheus")
 
     runtimeOnly("org.postgresql:postgresql")
 
