@@ -82,11 +82,18 @@ public class MissionServiceImpl implements MissionService {
         updateInventory(mission);
         updateMission(mission);
         sendMissionMessage(mission);
-        meterRegistry.counter("completed_missions").increment();
+        sendMissionMetrics(mission);
+    }
+
+    private void sendMissionMetrics(Mission mission) {
+        meterRegistry.counter(
+                "completed_missions",
+                "userId", String.valueOf(mission.getUser().getId()),
+                "warehouseId", String.valueOf(mission.getWarehouse().getId())
+        ).increment();
     }
 
     private Inventory handleInventory(OperationType operationType, Warehouse warehouse, Product product) {
-
         if (operationType == OperationType.INITIAL_PLACEMENT) {
             if (!inventoryRepository.existsByProductIdAndWarehouseId(product.getId(), warehouse.getId())) {
                 inventoryRepository.save(
