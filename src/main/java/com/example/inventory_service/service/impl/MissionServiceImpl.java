@@ -13,6 +13,7 @@ import com.example.inventory_service.message.enums.ActionType;
 import com.example.inventory_service.service.MissionProducer;
 import com.example.inventory_service.service.MissionService;
 import com.example.inventory_service.util.message.ErrorMessages;
+import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ public class MissionServiceImpl implements MissionService {
     private final InventoryRepository inventoryRepository;
     private final MissionProducer missionProducer;
     private final MissionMapper missionMapper;
+    private final MeterRegistry meterRegistry;
 
     private static Mission buildMission(CreateMissionDto missionDto, User user, Warehouse warehouse, Product product) {
         return Mission.builder()
@@ -80,25 +82,23 @@ public class MissionServiceImpl implements MissionService {
         updateInventory(mission);
         updateMission(mission);
         sendMissionMessage(mission);
+        meterRegistry.counter("completed_missions").increment();
     }
 
     private Inventory handleInventory(OperationType operationType, Warehouse warehouse, Product product) {
-        Inventory inventory = null;
 
         if (operationType == OperationType.INITIAL_PLACEMENT) {
             if (!inventoryRepository.existsByProductIdAndWarehouseId(product.getId(), warehouse.getId())) {
-                inventory = inventoryRepository.save(
+                inventoryRepository.save(
                         Inventory.builder()
                                 .warehouse(warehouse)
                                 .product(product)
                                 .count(0)
                                 .build());
             }
-
-        } else {
-            inventory = getInventory(product.getId(), warehouse.getId());
         }
-        return inventory;
+
+        return getInventory(product.getId(), warehouse.getId());
     }
 
     private void executeMission(OperationType operationType, Mission mission, int operationCount, int invCount) {
