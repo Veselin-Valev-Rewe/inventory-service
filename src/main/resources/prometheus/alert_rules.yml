@@ -1,0 +1,10 @@
+groups:
+  - name: user-mission-alerts
+    rules:
+      - alert: LowMissionCompletionPerUser
+        expr: sum(increase(completed_missions_total[1m])) by (userId) < 2
+        labels:
+          severity: warning
+        annotations:
+          summary: "User {{ $labels.userId }} completed too few missions"
+          description: "In the past 5 minutes, user {{ $labels.userId }} completed fewer than 2 missions."

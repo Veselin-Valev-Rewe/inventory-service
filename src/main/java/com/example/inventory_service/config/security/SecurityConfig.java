@@ -45,6 +45,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/users/{id}").hasAnyAuthority("Admin", "InternalService")
                         .requestMatchers("/api/users/**").hasAnyAuthority("Admin", "User")
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/alerts/**").permitAll()
                         .anyRequest()
                         .authenticated()
                 )

@@ -73,10 +73,22 @@ services:
     restart: unless-stopped
     volumes:
       - ./src/main/resources/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./src/main/resources/prometheus/alert_rules.yml:/etc/prometheus/alert_rules.yml
     ports:
       - "9090:9090"
     depends_on:
       - inventory-service
+    networks:
+      - backend
+
+  alertmanager:
+    image: prom/alertmanager:latest
+    volumes:
+      - ./src/main/resources/prometheus/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+    command:
+      - "--config.file=/etc/alertmanager/alertmanager.yml"
+    ports:
+      - "9093:9093"
     networks:
       - backend
 
